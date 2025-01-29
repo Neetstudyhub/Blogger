@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Admin Panel</h1>
+        <a href="/">View Blog</a>
+    </header>
+
+    <div class="admin-container">
+        <form id="postForm">
+            <input type="text" id="title" placeholder="Title" required>
+            <textarea id="content" placeholder="Content" required></textarea>
+            <input type="text" id="author" placeholder="Author" required>
+            <button type="submit">Publish Post</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('postForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const post = {
+                title: document.getElementById('title').value,
+                content: document.getElementById('content').value,
+                author: document.getElementById('author').value
+            };
+
+            try {
+                const response = await fetch('/.netlify/functions/createPost', {
+                    method: 'POST',
+                    body: JSON.stringify(post)
+                });
+
+                if (response.ok) {
+                    alert('Post published!');
+                    document.getElementById('postForm').reset();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
