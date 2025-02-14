@@ -85,18 +85,38 @@
       margin-bottom: 10px;
     }
 
-    .download-btn {
-      padding: 10px 20px;
-      background: #007bff;
-      color: #fff;
-      border: none;
+    .btn-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .btn {
+      width: 48%;
+      padding: 10px;
+      font-size: 1rem;
+      text-align: center;
       border-radius: 8px;
       text-decoration: none;
       transition: background 0.3s;
     }
 
-    .download-btn:hover {
+    .watch-btn {
+      background: #007bff;
+      color: #fff;
+    }
+
+    .watch-btn:hover {
       background: #0056b3;
+    }
+
+    .download-btn {
+      background: #28a745;
+      color: #fff;
+    }
+
+    .download-btn:hover {
+      background: #218838;
     }
 
     .error {
@@ -152,7 +172,10 @@
         videoInfoDiv.innerHTML = `
           <img src="${thumbnail}" class="thumbnail" alt="Video Thumbnail" />
           <h2 class="video-title">${title}</h2>
-          <a class="download-btn" href="https://www.youtube.com/watch?v=${videoId}" target="_blank">Watch or Download</a>
+          <div class="btn-container">
+            <a class="btn watch-btn" href="https://www.youtube.com/watch?v=${videoId}" target="_blank">Watch Video</a>
+            <a class="btn download-btn" href="https://y2mate.com/youtube/${videoId}" target="_blank">Download Video</a>
+          </div>
         `;
       } catch (error) {
         console.error(error);
