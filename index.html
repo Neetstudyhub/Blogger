@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube Video Preview</title>
+  <title>YouTube Downloader</title>
   <style>
-    /* Basic Styling */
     * {
       margin: 0;
       padding: 0;
@@ -13,8 +12,8 @@
     }
 
     body {
-      font-family: 'Arial', sans-serif;
-      background: #f9f9f9;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -22,101 +21,83 @@
     }
 
     .container {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       width: 100%;
       max-width: 500px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
     }
 
     h1 {
-      text-align: center;
+      font-size: 24px;
       color: #333;
-      font-size: 1.8rem;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
 
     input {
       width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      margin-bottom: 20px;
+      padding: 10px;
       border: 1px solid #ddd;
       border-radius: 8px;
-      outline: none;
-      transition: border-color 0.3s;
-    }
-
-    input:focus {
-      border-color: #4caf50;
+      margin-bottom: 15px;
+      font-size: 16px;
     }
 
     button {
       width: 100%;
       padding: 12px;
-      font-size: 1rem;
-      color: #fff;
-      background: #4caf50;
+      background-color: #4caf50;
+      color: white;
       border: none;
       border-radius: 8px;
+      font-size: 16px;
       cursor: pointer;
       transition: background 0.3s;
     }
 
     button:hover {
-      background: #45a049;
+      background-color: #45a049;
     }
 
     .video-info {
       margin-top: 20px;
-      text-align: center;
     }
 
     .thumbnail {
       width: 100%;
       border-radius: 8px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
 
     .video-title {
-      font-size: 1.2rem;
+      font-size: 18px;
       color: #333;
       margin-bottom: 10px;
     }
 
-    .btn-container {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
-
-    .btn {
-      width: 48%;
-      padding: 10px;
-      font-size: 1rem;
-      text-align: center;
-      border-radius: 8px;
-      text-decoration: none;
-      transition: background 0.3s;
-    }
-
-    .watch-btn {
-      background: #007bff;
-      color: #fff;
-    }
-
-    .watch-btn:hover {
-      background: #0056b3;
+    .video-size {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 15px;
     }
 
     .download-btn {
-      background: #28a745;
-      color: #fff;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.3s;
+      display: inline-block;
     }
 
     .download-btn:hover {
-      background: #218838;
+      background-color: #0056b3;
     }
 
     .error {
@@ -127,9 +108,9 @@
 </head>
 <body>
   <div class="container">
-    <h1>Video URL Preview</h1>
-    <input type="text" id="videoUrl" placeholder="Enter YouTube Video or Shorts URL" />
-    <button onclick="fetchVideoInfo()">Preview</button>
+    <h1>YouTube Video Downloader</h1>
+    <input type="text" id="videoUrl" placeholder="Enter YouTube Video URL" />
+    <button onclick="fetchVideoInfo()">Get Video</button>
     <div id="videoInfo" class="video-info"></div>
   </div>
 
@@ -137,9 +118,9 @@
     async function fetchVideoInfo() {
       const videoUrl = document.getElementById('videoUrl').value;
       const videoInfoDiv = document.getElementById('videoInfo');
-      videoInfoDiv.innerHTML = ''; // Clear previous info
+      videoInfoDiv.innerHTML = ''; // Clear previous data
 
-      // Extract video ID from the URL (supports both standard and Shorts URLs)
+      // Extract video ID from the URL
       let videoId = null;
       if (videoUrl.includes('shorts/')) {
         videoId = videoUrl.split('shorts/')[1]?.split('?')[0];
@@ -148,34 +129,41 @@
       }
 
       if (!videoId) {
-        videoInfoDiv.innerHTML = '<p class="error">Please enter a valid YouTube or Shorts URL.</p>';
+        videoInfoDiv.innerHTML = '<p class="error">Please enter a valid YouTube URL.</p>';
         return;
       }
 
-      const apiKey = 'AIzaSyD9uUkMITpYsUNl8-zmscFBcIgWydCm6L8'; // Replace with your YouTube Data API key
-      const apiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${apiKey}&part=snippet`;
+      const apiKey = '0415b34344msh668a1b1a4cb9883p162593jsnca52e34bc7ef'; // Replace with your RapidAPI key
+      const apiUrl = `https://yt-api.p.rapidapi.com/dl?id=${videoId}`;
 
       try {
-        const response = await fetch(apiUrl);
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'X-RapidAPI-Host': 'yt-api.p.rapidapi.com',
+            'X-RapidAPI-Key': apiKey
+          }
+        });
+
         const data = await response.json();
 
-        if (data.items.length === 0) {
-          videoInfoDiv.innerHTML = '<p class="error">No video found for this URL.</p>';
+        if (!data || !data.formats || data.formats.length === 0) {
+          videoInfoDiv.innerHTML = '<p class="error">Failed to fetch video details.</p>';
           return;
         }
 
-        const video = data.items[0].snippet;
-        const thumbnail = video.thumbnails.medium.url;
+        const video = data.videoDetails;
+        const thumbnail = video.thumbnail;
         const title = video.title;
+        const highestQuality = data.formats[0]; // Assuming first format is the highest quality
+        const sizeInMB = (highestQuality.size / (1024 * 1024)).toFixed(2);
 
-        // Display video info
+        // Display video details
         videoInfoDiv.innerHTML = `
           <img src="${thumbnail}" class="thumbnail" alt="Video Thumbnail" />
           <h2 class="video-title">${title}</h2>
-          <div class="btn-container">
-            <a class="btn watch-btn" href="https://www.youtube.com/watch?v=${videoId}" target="_blank">Watch Video</a>
-            <a class="btn download-btn" href="https://y2mate.com/youtube/${videoId}" target="_blank">Download Video</a>
-          </div>
+          <p class="video-size">File Size: ${sizeInMB} MB</p>
+          <a class="download-btn" href="${highestQuality.url}" target="_blank">Download Video</a>
         `;
       } catch (error) {
         console.error(error);
