@@ -108,7 +108,7 @@
 <body>
   <div class="container">
     <h1>Video URL Preview</h1>
-    <input type="text" id="videoUrl" placeholder="Enter YouTube Video URL" />
+    <input type="text" id="videoUrl" placeholder="Enter YouTube Video or Shorts URL" />
     <button onclick="fetchVideoInfo()">Preview</button>
     <div id="videoInfo" class="video-info"></div>
   </div>
@@ -116,14 +116,19 @@
   <script>
     async function fetchVideoInfo() {
       const videoUrl = document.getElementById('videoUrl').value;
-      const videoId = videoUrl.split('v=')[1]?.split('&')[0];
       const videoInfoDiv = document.getElementById('videoInfo');
+      videoInfoDiv.innerHTML = ''; // Clear previous info
 
-      // Clear previous video info
-      videoInfoDiv.innerHTML = '';
+      // Extract video ID from the URL (supports both standard and Shorts URLs)
+      let videoId = null;
+      if (videoUrl.includes('shorts/')) {
+        videoId = videoUrl.split('shorts/')[1]?.split('?')[0];
+      } else if (videoUrl.includes('v=')) {
+        videoId = videoUrl.split('v=')[1]?.split('&')[0];
+      }
 
       if (!videoId) {
-        videoInfoDiv.innerHTML = '<p class="error">Please enter a valid YouTube URL.</p>';
+        videoInfoDiv.innerHTML = '<p class="error">Please enter a valid YouTube or Shorts URL.</p>';
         return;
       }
 
