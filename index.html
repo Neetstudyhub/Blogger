@@ -1,18 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>My Blog</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Video Preview</title>
+  <style>
+    /* Basic Styling */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f9f9f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      border-color: #4caf50;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      color: #fff;
+      background: #4caf50;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    .video-info {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .thumbnail {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .video-title {
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .download-btn {
+      padding: 10px 20px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+
+    .download-btn:hover {
+      background: #0056b3;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>My Blog</h1>
-    </header>
+  <div class="container">
+    <h1>Video URL Preview</h1>
+    <input type="text" id="videoUrl" placeholder="Enter YouTube Video URL" />
+    <button onclick="fetchVideoInfo()">Preview</button>
+    <div id="videoInfo" class="video-info"></div>
+  </div>
 
-    <div class="blog-container" id="posts"></div>
+  <script>
+    async function fetchVideoInfo() {
+      const videoUrl = document.getElementById('videoUrl').value;
+      const videoId = videoUrl.split('v=')[1]?.split('&')[0];
+      const videoInfoDiv = document.getElementById('videoInfo');
 
-    <script src="blog.js"></script>
+      // Clear previous video info
+      videoInfoDiv.innerHTML = '';
+
+      if (!videoId) {
+        videoInfoDiv.innerHTML = '<p class="error">Please enter a valid YouTube URL.</p>';
+        return;
+      }
+
+      const apiKey = 'AIzaSyD9uUkMITpYsUNl8-zmscFBcIgWydCm6L8'; // Replace with your YouTube Data API key
+      const apiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${apiKey}&part=snippet`;
+
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (data.items.length === 0) {
+          videoInfoDiv.innerHTML = '<p class="error">No video found for this URL.</p>';
+          return;
+        }
+
+        const video = data.items[0].snippet;
+        const thumbnail = video.thumbnails.medium.url;
+        const title = video.title;
+
+        // Display video info
+        videoInfoDiv.innerHTML = `
+          <img src="${thumbnail}" class="thumbnail" alt="Video Thumbnail" />
+          <h2 class="video-title">${title}</h2>
+          <a class="download-btn" href="https://www.youtube.com/watch?v=${videoId}" target="_blank">Watch or Download</a>
+        `;
+      } catch (error) {
+        console.error(error);
+        videoInfoDiv.innerHTML = '<p class="error">Error fetching video information.</p>';
+      }
+    }
+  </script>
 </body>
 </html>
