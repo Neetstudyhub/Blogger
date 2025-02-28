@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - Add Blog Post</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Admin Panel</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="blog.html">Blogs</a>
+      <a href="contact.html">Contact</a>
+      <a href="upload.html">Upload PDFs</a>
+      <a href="admin.html">Admin Panel</a>
+    </nav>
+  </header>
+  <section>
+    <h2>Add a New Blog Post</h2>
+    <form id="adminForm">
+      <label for="blogTitle">Title:</label>
+      <input type="text" id="blogTitle" required>
+      <label for="blogContent">Content:</label>
+      <textarea id="blogContent" required></textarea>
+      <button type="submit">Add Blog</button>
+    </form>
+  </section>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>
