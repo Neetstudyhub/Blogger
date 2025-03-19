@@ -1,31 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Panel - Add Blog Post</title>
-  <link rel="stylesheet" href="https://neetstudyhub.github.io/Blogger/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
 </head>
 <body>
-  <header>
-    <h1>Admin Panel</h1>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="blog.html">Blogs</a>
-      <a href="contact.html">Contact</a>
-      <a href="upload.html">Upload PDFs</a>
-      <a href="admin.html">Admin Panel</a>
-    </nav>
-  </header>
-  <section>
-    <h2>Add a New Blog Post</h2>
-    <form id="adminForm">
-      <label for="blogTitle">Title:</label>
-      <input type="text" id="blogTitle" required>
-      <label for="blogContent">Content:</label>
-      <textarea id="blogContent" required></textarea>
-      <button type="submit">Add Blog</button>
-    </form>
-  </section>
-  <script type="module" src="https://neetstudyhub.github.io/Blogger/js/admin.js"></script>
+    <h1>Create a New Post</h1>
+    <input type="text" id="title" placeholder="Enter Post Title">
+    <input type="text" id="thumbnail" placeholder="Thumbnail URL">
+    <input type="text" id="category" placeholder="Category">
+    <textarea id="content" placeholder="Enter Post Content"></textarea>
+    <button onclick="publishPost()">Publish</button>
+
+    <script>
+        async function publishPost() {
+            const title = document.getElementById("title").value.trim();
+            const thumbnail = document.getElementById("thumbnail").value.trim();
+            const category = document.getElementById("category").value.trim();
+            const content = document.getElementById("content").value.trim();
+
+            if (!title || !content || !category) {
+                alert("All fields are required!");
+                return;
+            }
+
+            const fileName = title.toLowerCase().replace(/ /g, "-") + ".html";
+            const htmlContent = `<html><head><title>${title}</title></head><body>${content}</body></html>`;
+
+            const apiUrl = "https://api.github.com/repos/your-github-username/your-repo/contents/posts/" + fileName;
+            const token = "your-github-token";
+
+            const payload = {
+                message: "New Post: " + title,
+                content: btoa(unescape(encodeURIComponent(htmlContent))),
+                branch: "main"
+            };
+
+            fetch(apiUrl, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `token ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            }).then(response => response.json()).then(() => {
+                alert("Post published!");
+            });
+        }
+    </script>
 </body>
 </html>
