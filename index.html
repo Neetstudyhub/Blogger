@@ -20,13 +20,18 @@
                 postsContainer.innerHTML = '';
 
                 data.items.forEach(post => {
-                    const postTitleSlug = post.title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase(); // Format title for URL
+                    const formattedTitle = post.title
+                        .trim()
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric characters with single "-"
+                        .replace(/^-+|-+$/g, ''); // Remove leading/trailing "-"
+
                     const postCard = document.createElement('div');
                     postCard.classList.add('post-card');
                     postCard.innerHTML = `
                         <h2>${post.title}</h2>
                         <p>${post.contentSnippet}</p>
-                        <a href="/post/${postTitleSlug}">Read More</a>
+                        <a href="post.html?title=${encodeURIComponent(formattedTitle)}">Read More</a>
                     `;
                     postsContainer.appendChild(postCard);
                 });
