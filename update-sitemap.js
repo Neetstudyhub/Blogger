@@ -12,7 +12,7 @@ async function updateSitemap() {
                 .replace(/[^a-z0-9]+/g, '-') // Convert title to SEO-friendly slug
                 .replace(/^-+|-+$/g, ''); // Remove leading/trailing "-"
 
-            const postUrl = `https://neetstudyhub.github.io/pixellab/mypost/${formattedTitle}`;
+            const postUrl = `https://neetstudyhub.github.io/Blogger/post/${formattedTitle}`;
             
             sitemapEntries.push(`
                 <url>
