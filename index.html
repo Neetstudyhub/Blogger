@@ -13,20 +13,20 @@
     <script>
         async function fetchPosts() {
             try {
-                const response = await fetch('https://broken-hall-68ac.earnmoney100a.workers.dev/');
+                const response = await fetch('https://neetstudyhub-api-proxy.earnmoney100a.workers.dev/');
                 const data = await response.json();
                 
                 const postsContainer = document.getElementById('posts-container');
                 postsContainer.innerHTML = '';
 
                 data.items.forEach(post => {
-                    const postTitle = post.title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase(); // Format title for URL
+                    const postTitleSlug = post.title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase(); // Format title for URL
                     const postCard = document.createElement('div');
                     postCard.classList.add('post-card');
                     postCard.innerHTML = `
                         <h2>${post.title}</h2>
                         <p>${post.contentSnippet}</p>
-                        <a href="post.html?title=${encodeURIComponent(postTitle)}">Read More</a>
+                        <a href="/post/${postTitleSlug}">Read More</a>
                     `;
                     postsContainer.appendChild(postCard);
                 });
