@@ -13,21 +13,26 @@
     <script>
         async function fetchPostByTitle() {
             try {
-                // Extract the title from the URL path (e.g., "/post/{title}")
-                const pathSegments = window.location.pathname.split('/'); 
-                const postTitleSlug = pathSegments[pathSegments.length - 1];
+                const urlParams = new URLSearchParams(window.location.search);
+                const postTitle = urlParams.get('title');
 
-                if (!postTitleSlug) {
+                if (!postTitle) {
                     document.getElementById('post-content').innerHTML = '<p>Post not found.</p>';
                     return;
                 }
 
                 const response = await fetch('https://broken-hall-68ac.earnmoney100a.workers.dev/');
                 const data = await response.json();
-                
-                const post = data.items.find(post => 
-                    post.title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase() === postTitleSlug
-                );
+
+                const post = data.items.find(post => {
+                    const formattedTitle = post.title
+                        .trim()
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric characters with single "-"
+                        .replace(/^-+|-+$/g, ''); // Remove leading/trailing "-"
+                    
+                    return formattedTitle === postTitle;
+                });
 
                 if (post) {
                     document.getElementById('post-title').innerText = post.title;
