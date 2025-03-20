@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post</title>
+</head>
+<body>
+
+    <h1 id="post-title"></h1>
+    <div id="post-content"></div>
+
+    <script>
+        async function fetchPostByTitle() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const postTitle = urlParams.get('title');
+                
+                if (!postTitle) {
+                    document.getElementById('post-content').innerHTML = '<p>Post not found.</p>';
+                    return;
+                }
+
+                const response = await fetch('https://broken-hall-68ac.earnmoney100a.workers.dev/');
+                const data = await response.json();
+                
+                const post = data.items.find(post => 
+                    post.title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase() === postTitle
+                );
+
+                if (post) {
+                    document.getElementById('post-title').innerText = post.title;
+                    document.getElementById('post-content').innerHTML = post.content;
+                } else {
+                    document.getElementById('post-content').innerHTML = '<p>Post not found.</p>';
+                }
+
+            } catch (error) {
+                console.error('Error fetching post:', error);
+            }
+        }
+
+        fetchPostByTitle();
+    </script>
+
+</body>
+</html>
