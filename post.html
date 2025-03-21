@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -13,12 +14,16 @@
     <div class="container">
         <div class="main-content">
             <h1 id="post-title"></h1>
+            <p class="post-meta">
+                <span id="post-author"></span> • <span id="post-date"></span>
+            </p>
             <img id="post-thumbnail" src="" alt="" class="post-thumbnail">
             <div class="post-content" id="post-content"></div>
         </div>
+
         <aside class="sidebar">
             <h3>Related Posts</h3>
-            <ul class="related-list" id="related-posts"></ul>
+            <div class="related-posts-grid" id="related-posts"></div>
         </aside>
     </div>
 
