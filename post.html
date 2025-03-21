@@ -3,35 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Post</title>
+    <title>Post</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        header { background: #333; color: #fff; padding: 15px; text-align: center; }
-        nav a { color: white; text-decoration: none; margin: 0 15px; }
-        main { padding: 20px; }
-        #post-content { margin-top: 20px; }
-        footer { background: #333; color: #fff; text-align: center; padding: 10px; margin-top: 20px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        header {
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .post-content {
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+        .related-posts {
+            margin-top: 30px;
+        }
+        .related-posts h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .related-list {
+            list-style: none;
+        }
+        .related-list li {
+            padding: 8px;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .related-list li:hover {
+            background: #0056b3;
+        }
+        footer {
+            background: #343a40;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>My Blog</h1>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="#">About</a>
-            <a href="#">Contact</a>
-        </nav>
-    </header>
+    <header>My Blog</header>
 
-    <main>
+    <div class="container">
         <h1 id="post-title"></h1>
-        <div id="post-content"></div>
-    </main>
+        <div class="post-content" id="post-content"></div>
 
-    <footer>
-        <p>&copy; 2025 My Blog. All Rights Reserved.</p>
-    </footer>
+        <div class="related-posts">
+            <h3>Related Posts</h3>
+            <ul class="related-list" id="related-posts"></ul>
+        </div>
+    </div>
+
+    <footer>© 2025 My Blog. All Rights Reserved.</footer>
 
     <script>
         async function fetchPostByTitle() {
@@ -48,18 +101,29 @@
                 const data = await response.json();
 
                 const post = data.items.find(post => {
-                    const formattedTitle = post.title
-                        .trim()
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, '-') // Convert to SEO-friendly URL
-                        .replace(/^-+|-+$/g, '');
-
+                    const formattedTitle = post.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
                     return formattedTitle === postTitle;
                 });
 
                 if (post) {
                     document.getElementById('post-title').innerText = post.title;
                     document.getElementById('post-content').innerHTML = post.content;
+
+                    const relatedPosts = data.items
+                        .filter(p => p.title !== post.title) 
+                        .slice(0, 5); 
+
+                    const relatedContainer = document.getElementById('related-posts');
+                    relatedContainer.innerHTML = '';
+
+                    relatedPosts.forEach(relatedPost => {
+                        const relatedTitle = relatedPost.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+                        const li = document.createElement('li');
+                        li.innerText = relatedPost.title;
+                        li.onclick = () => window.location.href = `post.html?title=${encodeURIComponent(relatedTitle)}`;
+                        relatedContainer.appendChild(li);
+                    });
+
                 } else {
                     document.getElementById('post-content').innerHTML = '<p>Post not found.</p>';
                 }
