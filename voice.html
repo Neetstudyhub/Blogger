@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Premium Text to Speech</title>
+  <title>Premium Text to Speech - Updated</title>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -77,7 +77,7 @@
 
   <div>
     <button onclick="speak()">Speak</button>
-    <button onclick="download()">Download</button>
+    <button onclick="stopSpeaking()">Stop</button>
   </div>
 </div>
 
@@ -91,8 +91,6 @@
 
   let voices = [];
   let selectedVoice;
-  let mediaRecorder;
-  let audioChunks = [];
 
   function loadVoices() {
     voices = speechSynthesis.getVoices();
@@ -105,24 +103,36 @@
       voiceSelect.appendChild(option);
     });
 
-    // Set default to the first English voice
-    let defaultVoice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
-    selectedVoice = defaultVoice;
-    voiceSelect.value = voices.indexOf(defaultVoice);
+    // Default voice: first Indian-English if available
+    const indianVoice = voices.find(v => v.lang.includes('en-IN'));
+    if (indianVoice) {
+      selectedVoice = indianVoice;
+      voiceSelect.value = voices.indexOf(indianVoice);
+    } else {
+      selectedVoice = voices[0];
+      voiceSelect.value = 0;
+    }
   }
 
   speechSynthesis.onvoiceschanged = loadVoices;
 
   voiceSelect.addEventListener('change', () => {
     selectedVoice = voices[voiceSelect.value];
+    restartSpeaking();
   });
 
   pitchInput.addEventListener('input', () => {
     pitchValue.textContent = pitchInput.value;
+    restartSpeaking();
   });
 
   rateInput.addEventListener('input', () => {
     rateValue.textContent = rateInput.value;
+    restartSpeaking();
+  });
+
+  textInput.addEventListener('input', () => {
+    restartSpeaking();
   });
 
   function speak() {
@@ -133,14 +143,19 @@
 
     const utterance = new SpeechSynthesisUtterance(textInput.value);
     utterance.voice = selectedVoice;
-    utterance.pitch = pitchInput.value;
-    utterance.rate = rateInput.value;
+    utterance.pitch = parseFloat(pitchInput.value);
+    utterance.rate = parseFloat(rateInput.value);
 
     window.speechSynthesis.speak(utterance);
   }
 
-  function download() {
-    alert("Download feature needs a different setup.\n\nBrowsers can't record synthesized speech easily without external tools.\n\nYou can still record screen/audio externally or we can add a server for real mp3 download if you want!");
+  function stopSpeaking() {
+    window.speechSynthesis.cancel();
+  }
+
+  function restartSpeaking() {
+    stopSpeaking();
+    speak();
   }
 </script>
 
