@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text to Speech with Pitch Control & Download</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      background: #f2f2f2;
+    }
+    textarea {
+      width: 80%;
+      height: 100px;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    input[type=range] {
+      width: 50%;
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Text to Speech</h1>
+  <textarea id="text" placeholder="Type something..."></textarea><br>
+
+  <label for="pitch">Pitch: </label>
+  <input type="range" id="pitch" min="0" max="2" step="0.1" value="1"><br>
+
+  <button onclick="speak()">Speak</button>
+  <button onclick="download()">Download Voice</button>
+
+  <script>
+    let mediaRecorder;
+    let audioChunks = [];
+
+    function speak() {
+      const text = document.getElementById('text').value;
+      const pitch = document.getElementById('pitch').value;
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.pitch = pitch;
+
+      // Start recording
+      startRecording();
+
+      utterance.onend = () => {
+        // Stop recording when speaking ends
+        stopRecording();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function startRecording() {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const dest = audioContext.createMediaStreamDestination();
+      const synth = window.speechSynthesis;
+
+      const utterThis = new SpeechSynthesisUtterance(document.getElementById('text').value);
+      const source = audioContext.createMediaStreamSource(dest.stream);
+
+      mediaRecorder = new MediaRecorder(dest.stream);
+      audioChunks = [];
+
+      mediaRecorder.ondataavailable = event => {
+        audioChunks.push(event.data);
+      };
+
+      mediaRecorder.start();
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+    }
+
+    function download() {
+      if (audioChunks.length === 0) {
+        alert('Please press "Speak" first to record the voice!');
+        return;
+      }
+
+      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'voice.webm';
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+
+</body>
+</html>
