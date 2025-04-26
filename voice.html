@@ -2,29 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Responsive Premium Text to Speech</title>
+  <title>Premium Text to Speech (Pro Version)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    :root {
+      --primary: #4facfe;
+      --secondary: #00f2fe;
+      --background-light: #ffffff;
+      --background-dark: #2c3e50;
+      --text-light: #000;
+      --text-dark: #fff;
+    }
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to right, #74ebd5, #ACB6E5);
+      background: var(--background-light);
       min-height: 100vh;
+      margin: 0;
+      padding: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0;
-      padding: 20px;
+      transition: background 0.3s, color 0.3s;
     }
     .container {
-      background: #fff;
+      background: var(--background-light);
+      color: var(--text-light);
       padding: 30px;
       border-radius: 20px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
       width: 100%;
-      max-width: 500px;
+      max-width: 550px;
       display: flex;
       flex-direction: column;
       gap: 20px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .dark .container {
+      background: var(--background-dark);
+      color: var(--text-dark);
     }
     textarea {
       width: 100%;
@@ -55,7 +70,7 @@
     }
     button {
       flex: 1;
-      background: #4facfe;
+      background: var(--primary);
       border: none;
       padding: 12px;
       font-size: 16px;
@@ -65,30 +80,36 @@
       transition: background 0.3s;
     }
     button:hover {
-      background: #00f2fe;
+      background: var(--secondary);
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .toggle-btn {
+      background: none;
+      border: 2px solid var(--primary);
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      color: var(--primary);
     }
     @media (max-width: 768px) {
-      .container {
-        padding: 20px;
-      }
-      textarea {
-        height: 100px;
-      }
-    }
-    @media (max-width: 480px) {
-      .controls {
-        flex-direction: column;
-      }
-      button {
-        width: 100%;
-      }
+      textarea { height: 100px; }
+      .controls { flex-direction: column; }
+      button { width: 100%; }
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2 style="text-align:center;">Text to Speech</h2>
+  <div class="topbar">
+    <h2>Text to Speech</h2>
+    <button class="toggle-btn" id="toggleMode">Dark Mode</button>
+  </div>
 
   <textarea id="text" placeholder="Enter text here..."></textarea>
 
@@ -110,6 +131,7 @@
   <div class="controls">
     <button id="speakBtn">Speak</button>
     <button id="stopBtn">Stop</button>
+    <!-- Future: <button id="downloadBtn">Download MP3</button> -->
   </div>
 </div>
 
@@ -122,39 +144,28 @@
   const rateValue = document.getElementById('rateValue');
   const speakBtn = document.getElementById('speakBtn');
   const stopBtn = document.getElementById('stopBtn');
+  const toggleMode = document.getElementById('toggleMode');
 
   let voices = [];
-  let utterance;
+  let utterance = null;
 
-  function loadVoices() {
+  function populateVoices() {
     voices = speechSynthesis.getVoices();
     voiceSelect.innerHTML = '';
-
     voices.forEach((voice, i) => {
       const option = document.createElement('option');
       option.value = i;
-      option.innerText = `${voice.name} (${voice.lang})`;
+      option.textContent = `${voice.name} (${voice.lang})`;
       voiceSelect.appendChild(option);
     });
 
-    // Try to set Indian English if available
     const indianVoice = voices.find(v => v.lang.includes('en-IN'));
     if (indianVoice) {
       voiceSelect.value = voices.indexOf(indianVoice);
     }
   }
 
-  speechSynthesis.onvoiceschanged = loadVoices;
-
-  pitchInput.addEventListener('input', () => {
-    pitchValue.textContent = pitchInput.value;
-  });
-
-  rateInput.addEventListener('input', () => {
-    rateValue.textContent = rateInput.value;
-  });
-
-  speakBtn.addEventListener('click', () => {
+  function speak() {
     if (!textInput.value.trim()) {
       alert('Please enter some text!');
       return;
@@ -170,11 +181,34 @@
     utterance.rate = parseFloat(rateInput.value);
 
     speechSynthesis.speak(utterance);
+  }
+
+  function stopSpeaking() {
+    speechSynthesis.cancel();
+  }
+
+  speechSynthesis.onvoiceschanged = populateVoices;
+
+  pitchInput.addEventListener('input', () => {
+    pitchValue.textContent = pitchInput.value;
   });
 
-  stopBtn.addEventListener('click', () => {
-    speechSynthesis.cancel();
+  rateInput.addEventListener('input', () => {
+    rateValue.textContent = rateInput.value;
   });
+
+  speakBtn.addEventListener('click', speak);
+  stopBtn.addEventListener('click', stopSpeaking);
+
+  toggleMode.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    toggleMode.textContent = document.body.classList.contains('dark') ? 'Light Mode' : 'Dark Mode';
+  });
+
+  // Initial call
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = populateVoices;
+  }
 </script>
 
 </body>
