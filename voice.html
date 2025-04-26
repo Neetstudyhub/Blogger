@@ -2,106 +2,147 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Text to Speech with Pitch Control & Download</title>
+  <title>Premium Text to Speech</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #74ebd5, #ACB6E5);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 600px;
       text-align: center;
-      margin-top: 50px;
-      background: #f2f2f2;
     }
     textarea {
-      width: 80%;
-      height: 100px;
+      width: 100%;
+      height: 120px;
       font-size: 18px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      resize: none;
+    }
+    select, input[type=range] {
+      width: 100%;
       margin-bottom: 20px;
     }
-    input[type=range] {
-      width: 50%;
-      margin: 20px 0;
-    }
     button {
-      padding: 10px 20px;
+      background: #4facfe;
+      border: none;
+      padding: 12px 20px;
       font-size: 18px;
-      margin: 10px;
+      border-radius: 8px;
+      color: white;
       cursor: pointer;
+      margin: 10px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #00f2fe;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
     }
   </style>
 </head>
 <body>
 
-  <h1>Text to Speech</h1>
-  <textarea id="text" placeholder="Type something..."></textarea><br>
+<div class="container">
+  <h1>Premium Text to Speech</h1>
 
-  <label for="pitch">Pitch: </label>
-  <input type="range" id="pitch" min="0" max="2" step="0.1" value="1"><br>
+  <textarea id="text" placeholder="Type your text..."></textarea>
 
-  <button onclick="speak()">Speak</button>
-  <button onclick="download()">Download Voice</button>
+  <label for="voiceSelect">Choose Voice:</label>
+  <select id="voiceSelect"></select>
 
-  <script>
-    let mediaRecorder;
-    let audioChunks = [];
+  <label for="pitch">Pitch: <span id="pitchValue">1</span></label>
+  <input type="range" id="pitch" min="0" max="2" step="0.1" value="1">
 
-    function speak() {
-      const text = document.getElementById('text').value;
-      const pitch = document.getElementById('pitch').value;
+  <label for="rate">Speed: <span id="rateValue">1</span></label>
+  <input type="range" id="rate" min="0.5" max="2" step="0.1" value="1">
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.pitch = pitch;
+  <div>
+    <button onclick="speak()">Speak</button>
+    <button onclick="download()">Download</button>
+  </div>
+</div>
 
-      // Start recording
-      startRecording();
+<script>
+  const textInput = document.getElementById('text');
+  const voiceSelect = document.getElementById('voiceSelect');
+  const pitchInput = document.getElementById('pitch');
+  const rateInput = document.getElementById('rate');
+  const pitchValue = document.getElementById('pitchValue');
+  const rateValue = document.getElementById('rateValue');
 
-      utterance.onend = () => {
-        // Stop recording when speaking ends
-        stopRecording();
-      };
+  let voices = [];
+  let selectedVoice;
+  let mediaRecorder;
+  let audioChunks = [];
 
-      window.speechSynthesis.speak(utterance);
+  function loadVoices() {
+    voices = speechSynthesis.getVoices();
+    voiceSelect.innerHTML = '';
+
+    voices.forEach((voice, i) => {
+      const option = document.createElement('option');
+      option.value = i;
+      option.innerText = `${voice.name} (${voice.lang})`;
+      voiceSelect.appendChild(option);
+    });
+
+    // Set default to the first English voice
+    let defaultVoice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+    selectedVoice = defaultVoice;
+    voiceSelect.value = voices.indexOf(defaultVoice);
+  }
+
+  speechSynthesis.onvoiceschanged = loadVoices;
+
+  voiceSelect.addEventListener('change', () => {
+    selectedVoice = voices[voiceSelect.value];
+  });
+
+  pitchInput.addEventListener('input', () => {
+    pitchValue.textContent = pitchInput.value;
+  });
+
+  rateInput.addEventListener('input', () => {
+    rateValue.textContent = rateInput.value;
+  });
+
+  function speak() {
+    if (!textInput.value.trim()) {
+      alert('Please enter some text!');
+      return;
     }
 
-    function startRecording() {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const dest = audioContext.createMediaStreamDestination();
-      const synth = window.speechSynthesis;
+    const utterance = new SpeechSynthesisUtterance(textInput.value);
+    utterance.voice = selectedVoice;
+    utterance.pitch = pitchInput.value;
+    utterance.rate = rateInput.value;
 
-      const utterThis = new SpeechSynthesisUtterance(document.getElementById('text').value);
-      const source = audioContext.createMediaStreamSource(dest.stream);
+    window.speechSynthesis.speak(utterance);
+  }
 
-      mediaRecorder = new MediaRecorder(dest.stream);
-      audioChunks = [];
-
-      mediaRecorder.ondataavailable = event => {
-        audioChunks.push(event.data);
-      };
-
-      mediaRecorder.start();
-    }
-
-    function stopRecording() {
-      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-        mediaRecorder.stop();
-      }
-    }
-
-    function download() {
-      if (audioChunks.length === 0) {
-        alert('Please press "Speak" first to record the voice!');
-        return;
-      }
-
-      const blob = new Blob(audioChunks, { type: 'audio/webm' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = 'voice.webm';
-      document.body.appendChild(a);
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-  </script>
+  function download() {
+    alert("Download feature needs a different setup.\n\nBrowsers can't record synthesized speech easily without external tools.\n\nYou can still record screen/audio externally or we can add a server for real mp3 download if you want!");
+  }
+</script>
 
 </body>
 </html>
